@@ -341,6 +341,33 @@ Thanks to everyone using REA, reporting bugs, requesting features, testing build
   </picture>
 </a>
 
+## Local setup notes (fork)
+
+This is a personal fork of [morluto/rea](https://github.com/morluto/rea). It is
+not intended for upstream pull requests, and the `upstream` remote's push URL is
+set to `DISABLED`.
+
+On this machine REA is registered with Claude Code (`~/.claude.json`), pinned to
+`rea-agents@6.4.0`, with Ghidra and OpenJDK installed through Homebrew.
+
+**Known fragility: `JAVA_HOME` goes stale after a Homebrew JDK upgrade.** Setup
+records `JAVA_HOME` as the versioned Cellar path
+(`/opt/homebrew/Cellar/openjdk@21/<version>/libexec/openjdk.jdk/Contents/Home`).
+`brew upgrade openjdk@21` or `brew cleanup` removes that directory, and REA's
+Ghidra provider then fails its `ghidra-java` check. `GHIDRA_INSTALL_DIR` uses the
+stable `/opt/homebrew/opt/ghidra/libexec` symlink and is not affected.
+
+To detect it, run `rea doctor --json` and look for failing `ghidra-*` entries in
+`scope_checks`. To fix it, re-run setup and restart Claude Code:
+
+```bash
+GHIDRA_INSTALL_DIR=/opt/homebrew/opt/ghidra/libexec \
+JAVA_HOME=/opt/homebrew/opt/openjdk@21 \
+npx -p rea-agents@<version> rea setup --client claude_code --yes
+```
+
+Setup writes a backup to `~/.claude.json.rea.backup`.
+
 ## Disclaimer
 
 See [DISCLAIMER.md](DISCLAIMER.md) for responsible-use guidance.
